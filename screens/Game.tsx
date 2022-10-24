@@ -6,8 +6,10 @@ import { getShuffledCards } from "../utils/getShuffledCards";
 import { TCard } from "../types/Card";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "../App";
+import useRecordContext from "../store";
+import { colors } from "../constants/colors";
 
-type Props = NativeStackScreenProps<RootStackNavigator>;
+type Props = NativeStackScreenProps<RootStackNavigator, "Game">;
 
 export default function Game({ navigation }: Props) {
   const initialCardRows = useRef(getShuffledCards()).current;
@@ -17,6 +19,18 @@ export default function Game({ navigation }: Props) {
   const [selectedCards, setSelectedCards] = useState<TCard[]>([]);
 
   const [movesQuantity, setMovesQuantity] = useState(0);
+
+  const [time, setTime] = useState(0);
+
+  const { updateTimeRecord, updateMovesRecord } = useRecordContext();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime((previous) => previous + 0.1);
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (selectedCards.length === 2) {
@@ -41,9 +55,21 @@ export default function Game({ navigation }: Props) {
 
   useEffect(() => {
     if (shuffledCards.every((card) => card.pairFound)) {
-      navigation.replace("Victory");
+      updateMovesRecord(movesQuantity);
+      updateTimeRecord(time);
+      navigation.replace("Victory", {
+        moves: movesQuantity,
+        time,
+      });
     }
-  }, [shuffledCards, navigation]);
+  }, [
+    shuffledCards,
+    navigation,
+    movesQuantity,
+    updateMovesRecord,
+    time,
+    updateTimeRecord,
+  ]);
 
   const selectCardHandler = useCallback(
     (card: TCard) => {
@@ -63,6 +89,9 @@ export default function Game({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
+      <View style={styles.timeContainer}>
+        <Text style={styles.time}>{time.toFixed(1)}</Text>
+      </View>
       {initialCardRows.map((row, rowIndex) => (
         <View style={styles.row} key={rowIndex}>
           {row.map((item, itemIndex) => (
@@ -118,9 +147,25 @@ const styles = StyleSheet.create({
     flex: 0,
   },
   movesText: {
-    marginTop: 32,
+    marginVertical: 32,
     color: "white",
     textAlign: "center",
     fontSize: 16,
+  },
+  timeContainer: {
+    alignItems: "center",
+    marginVertical: 32,
+  },
+  time: {
+    textAlign: "center",
+    borderRadius: 6,
+    overflow: "hidden",
+    backgroundColor: "white",
+    minWidth: 110,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    fontWeight: "700",
+    fontSize: 24,
+    color: colors.cardsColors.sea,
   },
 });

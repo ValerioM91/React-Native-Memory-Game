@@ -1,11 +1,13 @@
-import Svg, { SvgProps } from "react-native-svg";
+import Svg, { SvgProps, Path } from "react-native-svg";
+import { colors } from "../../constants/colors";
 
 interface Props {
-  children: React.ReactNode;
+  path: string;
+  color: keyof typeof colors.cardsColors;
   svgProps?: SvgProps;
 }
 
-const SvgTemplate = ({ children, svgProps }: Props) => (
+const SvgTemplate = ({ svgProps, color, path }: Props) => (
   <Svg
     viewBox="0 0 512 512"
     style={{
@@ -14,7 +16,7 @@ const SvgTemplate = ({ children, svgProps }: Props) => (
     }}
     {...svgProps}
   >
-    {children}
+    <Path d={path} fill={colors.cardsColors[color]} />
   </Svg>
 );
 
