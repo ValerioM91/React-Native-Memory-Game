@@ -1,10 +1,10 @@
 import { StyleSheet, View } from "react-native";
 import { colors } from "../constants/colors";
-import useRecordContext from "../store";
+import useRecordContext from "../store/context";
 import Results from "../components/UI/Results";
 
 export default function Records() {
-  const { movesRecord, timeRecord } = useRecordContext();
+  const { movesRecord, timeRecord } = useRecordContext().records || {};
 
   return (
     <View style={styles.screen}>

@@ -4,14 +4,14 @@ import Button from "../components/UI/Button";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "../App";
 import { colors } from "../constants/colors";
-import useRecordContext from "../store";
+import useRecordContext from "../store/context";
 import Results from "../components/UI/Results";
 
 type Props = NativeStackScreenProps<RootStackNavigator, "Victory">;
 
 export default function Victory({ navigation, route }: Props) {
   const { moves, time } = route.params;
-  const { movesRecord, timeRecord } = useRecordContext();
+  const { movesRecord, timeRecord } = useRecordContext().records || {};
 
   const playAgainHandler = () => {
     navigation.replace("Game");
@@ -31,8 +31,8 @@ export default function Victory({ navigation, route }: Props) {
       />
       <Results
         title="Your Records"
-        moves={movesRecord || moves}
-        time={timeRecord || time}
+        moves={movesRecord}
+        time={timeRecord}
         isMovesNewRecord={isMovesNewRecord}
         isTimeNewRecord={isTimeNewRecord}
       />

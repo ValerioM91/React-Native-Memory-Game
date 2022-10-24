@@ -7,3 +7,8 @@ export type TCard = {
   color: keyof typeof colors.cardsColors;
   pairFound: boolean;
 };
+
+export type TRecords = {
+  movesRecord: number;
+  timeRecord: number;
+};

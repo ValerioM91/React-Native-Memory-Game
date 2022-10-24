@@ -3,31 +3,30 @@ import * as Svgs from "../components/SVGS";
 import Card from "../components/UI/Card";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getShuffledCards } from "../utils/getShuffledCards";
-import { TCard } from "../types/Card";
+import { TCard } from "../types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "../App";
-import useRecordContext from "../store";
+import useRecordContext from "../store/context";
 import { colors } from "../constants/colors";
+import Timer from "../components/UI/Timer";
 
 type Props = NativeStackScreenProps<RootStackNavigator, "Game">;
 
 export default function Game({ navigation }: Props) {
   const initialCardRows = useRef(getShuffledCards()).current;
+  const { updateRecords } = useRecordContext();
 
   const [shuffledCards, setShuffledCards] = useState(initialCardRows.flat());
 
-  const [selectedCards, setSelectedCards] = useState<TCard[]>([]);
-
   const [movesQuantity, setMovesQuantity] = useState(0);
-
   const [time, setTime] = useState(0);
 
-  const { updateTimeRecord, updateMovesRecord } = useRecordContext();
+  const [selectedCards, setSelectedCards] = useState<TCard[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime((previous) => previous + 0.1);
-    }, 100);
+      setTime((previous) => previous + 6);
+    }, 60);
 
     return () => clearInterval(timer);
   }, []);
@@ -55,21 +54,13 @@ export default function Game({ navigation }: Props) {
 
   useEffect(() => {
     if (shuffledCards.every((card) => card.pairFound)) {
-      updateMovesRecord(movesQuantity);
-      updateTimeRecord(time);
+      updateRecords(movesQuantity, time);
       navigation.replace("Victory", {
         moves: movesQuantity,
         time,
       });
     }
-  }, [
-    shuffledCards,
-    navigation,
-    movesQuantity,
-    updateMovesRecord,
-    time,
-    updateTimeRecord,
-  ]);
+  }, [shuffledCards, navigation, movesQuantity, time, updateRecords]);
 
   const selectCardHandler = useCallback(
     (card: TCard) => {
@@ -89,9 +80,7 @@ export default function Game({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.timeContainer}>
-        <Text style={styles.time}>{time.toFixed(1)}</Text>
-      </View>
+      <Timer time={time} />
       {initialCardRows.map((row, rowIndex) => (
         <View style={styles.row} key={rowIndex}>
           {row.map((item, itemIndex) => (
@@ -108,7 +97,7 @@ export default function Game({ navigation }: Props) {
           ))}
         </View>
       ))}
-      <Text style={styles.movesText}>Total moves: {movesQuantity}</Text>
+      <Text style={styles.movesText}>Total Moves: {movesQuantity}</Text>
     </View>
   );
 }
@@ -136,7 +125,6 @@ const Item = ({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    marginTop: 32,
     padding: 24,
     justifyContent: "center",
   },
@@ -149,12 +137,14 @@ const styles = StyleSheet.create({
   movesText: {
     marginVertical: 32,
     color: "white",
+    textTransform: "uppercase",
     textAlign: "center",
+    fontWeight: "600",
     fontSize: 16,
   },
   timeContainer: {
     alignItems: "center",
-    marginVertical: 32,
+    marginBottom: 32,
   },
   time: {
     textAlign: "center",
