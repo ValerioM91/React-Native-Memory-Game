@@ -6,15 +6,11 @@ import {
   useEffect,
   useState,
 } from "react";
+import { TRecords } from "../types";
 import { getStorageData, setStorageData } from "./storage";
 
-interface Records {
-  movesRecord: number;
-  timeRecord: number;
-}
-
 interface Store {
-  records: Records | null;
+  records: TRecords | null;
   updateRecords: (moves: number, time: number) => void;
 }
 
@@ -25,7 +21,7 @@ export const RecordContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [records, setRecords] = useState<null | Records>(null);
+  const [records, setRecords] = useState<null | TRecords>(null);
 
   useEffect(() => {
     const getStorageRecords = async () => {
