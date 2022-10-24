@@ -5,7 +5,7 @@ import {
 } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
-import { Alert, Button, View } from "react-native";
+import { Alert, Button, View, Platform } from "react-native";
 import { colors } from "./constants/colors";
 import Game from "./screens/Game";
 import Home from "./screens/Home";
@@ -116,6 +116,7 @@ export default function App() {
               screenOptions={{
                 contentStyle: { backgroundColor: colors.darkBlue },
                 headerStyle: { backgroundColor: colors.blue },
+                headerTitleAlign: "center",
                 headerTintColor: "white",
               }}
             >
@@ -157,7 +158,9 @@ export default function App() {
                   headerRight: () => (
                     <Button
                       title="Restart"
-                      color={colors.white}
+                      color={
+                        Platform.OS === "android" ? colors.sea : colors.white
+                      }
                       onPress={() => navigation.replace("Game")}
                     />
                   ),
