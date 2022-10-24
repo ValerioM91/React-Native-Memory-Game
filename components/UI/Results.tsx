@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { colors } from "../../constants/colors";
+import { getFormattedTime } from "../../utils/getFormattedTime";
 
 interface Props {
   title: string;
@@ -17,17 +18,38 @@ export default function Results({
   isTimeNewRecord,
   isMovesNewRecord,
 }: Props) {
-  const { text, title: titleStyle, results, newRecord } = styles;
+  const {
+    text,
+    title: titleStyle,
+    results,
+    newRecord,
+    resultsContainer,
+    row,
+  } = styles;
+
+  if (!time || !moves) {
+    return (
+      <View style={resultsContainer}>
+        <Text style={[text, titleStyle]}>{title}</Text>
+        <View style={row}>
+          <Text style={[text, results]}>No record found</Text>
+          <Text style={[text, results]}>No record found</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const { minutes, seconds, cents } = getFormattedTime(time);
 
   return (
-    <View style={styles.resultsContainer}>
+    <View style={resultsContainer}>
       <Text style={[text, titleStyle]}>{title}</Text>
-      <View style={styles.row}>
-        <Text style={[text, results, isTimeNewRecord ? newRecord : {}]}>
-          {moves ? `Moves: ${moves}` : "No record found"}
-        </Text>
+      <View style={row}>
         <Text style={[text, results, isMovesNewRecord ? newRecord : {}]}>
-          {time ? `Time: ${time.toFixed(1)}s` : "No record found"}
+          {`Moves: ${moves}`}
+        </Text>
+        <Text style={[text, results, isTimeNewRecord ? newRecord : {}]}>
+          {`Time: ${minutes}:${seconds}:${cents}`}
         </Text>
       </View>
     </View>
@@ -39,7 +61,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    color: colors.cardsColors.sea,
+    color: colors.sea,
     fontSize: 20,
     textTransform: "uppercase",
   },
@@ -61,6 +83,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   newRecord: {
-    color: colors.cardsColors.green,
+    color: colors.green,
   },
 });

@@ -1,5 +1,5 @@
 import * as Svgs from "../components/SVGS";
-import { TCard } from "../types/Card";
+import { TCard } from "../types";
 import { colors as colorObject } from "../constants/colors";
 import { shuffleArray } from "./shuffleArray";
 
