@@ -60,7 +60,7 @@ export default function Card({
         ]}
       >
         <Image
-          source={require("../../assets/subtle-prism.jpg")}
+          source={require("../../assets/card.jpg")}
           style={styles.background}
         />
       </Animated.View>
