@@ -22,3 +22,11 @@ export const getStorageData = async () => {
     return null;
   }
 };
+
+export const deleteStorageData = async () => {
+  try {
+    await AsyncStorage.removeItem("Records");
+  } catch (e) {
+    //
+  }
+};

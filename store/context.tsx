@@ -7,11 +7,12 @@ import {
   useState,
 } from "react";
 import { TRecords } from "../types";
-import { getStorageData, setStorageData } from "./storage";
+import { deleteStorageData, getStorageData, setStorageData } from "./storage";
 
 interface Store {
   records: TRecords | null;
   updateRecords: (moves: number, time: number) => void;
+  deleteRecords: () => void;
 }
 
 const RecordContext = createContext({} as Store);
@@ -55,8 +56,13 @@ export const RecordContextProvider = ({
     [records]
   );
 
+  const deleteRecords = () => {
+    setRecords(null);
+    deleteStorageData();
+  };
+
   return (
-    <RecordContext.Provider value={{ records, updateRecords }}>
+    <RecordContext.Provider value={{ records, updateRecords, deleteRecords }}>
       {children}
     </RecordContext.Provider>
   );
