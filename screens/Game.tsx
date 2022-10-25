@@ -31,37 +31,6 @@ export default function Game({ navigation }: Props) {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (selectedCards.length === 2) {
-      setMovesQuantity((current) => current + 1);
-      const equalSelectedCards = selectedCards[0].svg === selectedCards[1].svg;
-      setTimeout(() => {
-        if (equalSelectedCards) {
-          setShuffledCards((current) => {
-            let removedEqualCards = [...current];
-            removedEqualCards = removedEqualCards.map((card) =>
-              card.svg === selectedCards[0].svg
-                ? { ...card, pairFound: true }
-                : card
-            );
-            return removedEqualCards;
-          });
-        }
-        setSelectedCards([]);
-      }, 500);
-    }
-  }, [selectedCards]);
-
-  useEffect(() => {
-    if (shuffledCards.every((card) => card.pairFound)) {
-      updateRecords(movesQuantity, time);
-      navigation.replace("Victory", {
-        moves: movesQuantity,
-        time,
-      });
-    }
-  }, [shuffledCards, navigation, movesQuantity, time, updateRecords]);
-
   const selectCardHandler = useCallback(
     (card: TCard) => {
       if (selectedCards.length === 2) return;
@@ -77,6 +46,45 @@ export default function Game({ navigation }: Props) {
     },
     [selectedCards]
   );
+
+  const checkPairHandler = useCallback(() => {
+    if (selectedCards.length !== 2) return;
+
+    setMovesQuantity((current) => current + 1);
+    const equalSelectedCards = selectedCards[0].svg === selectedCards[1].svg;
+    setTimeout(() => {
+      if (equalSelectedCards) {
+        setShuffledCards((current) => {
+          let removedEqualCards = [...current];
+          removedEqualCards = removedEqualCards.map((card) =>
+            card.svg === selectedCards[0].svg
+              ? { ...card, pairFound: true }
+              : card
+          );
+          return removedEqualCards;
+        });
+      }
+      setSelectedCards([]);
+    }, 500);
+  }, [selectedCards]);
+
+  const isGameEndedHandler = useCallback(() => {
+    if (shuffledCards.every((card) => card.pairFound)) {
+      updateRecords(movesQuantity, time);
+      navigation.replace("Victory", {
+        moves: movesQuantity,
+        time,
+      });
+    }
+  }, [movesQuantity, navigation, shuffledCards, time, updateRecords]);
+
+  useEffect(() => {
+    checkPairHandler();
+  }, [checkPairHandler]);
+
+  useEffect(() => {
+    isGameEndedHandler();
+  }, [isGameEndedHandler]);
 
   return (
     <View style={styles.screen}>
