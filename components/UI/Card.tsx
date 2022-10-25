@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import {
   StyleSheet,
   Pressable,
@@ -35,14 +35,12 @@ export default function Card({
     outputRange: ["-180deg", "0deg"],
   });
 
-  useEffect(() => {
-    Animated.timing(rotateAnimation, {
-      toValue: isFaceUp ? 1 : 0,
-      duration: 500,
-      useNativeDriver: true,
-      easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
-    }).start();
-  }, [isFaceUp, rotateAnimation]);
+  Animated.timing(rotateAnimation, {
+    toValue: isFaceUp ? 1 : 0,
+    duration: 500,
+    useNativeDriver: true,
+    easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
+  }).start();
 
   if (pairFound) {
     return <View style={styles.card}></View>;
