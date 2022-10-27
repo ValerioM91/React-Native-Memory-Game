@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import {
   StyleSheet,
   Pressable,
@@ -15,15 +15,19 @@ interface Props {
   onPress: (event: GestureResponderEvent) => void;
   isFaceUp?: boolean;
   pairFound?: boolean;
+  onAnimationComplete?: () => void;
 }
 
-export default function Card({
+function Card({
   children,
   onPress,
   isFaceUp,
   pairFound,
+  onAnimationComplete,
 }: Props) {
   const rotateAnimation = useRef(new Animated.Value(0)).current;
+
+  console.log("card rendering");
 
   const RotateUpData = rotateAnimation.interpolate({
     inputRange: [0, 1],
@@ -35,12 +39,18 @@ export default function Card({
     outputRange: ["-180deg", "0deg"],
   });
 
-  Animated.timing(rotateAnimation, {
-    toValue: isFaceUp ? 1 : 0,
-    duration: 500,
-    useNativeDriver: true,
-    easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
-  }).start();
+  useEffect(() => {
+    if (isFaceUp) {
+      Animated.timing(rotateAnimation, {
+        toValue: isFaceUp ? 1 : 0,
+        duration: 500,
+        useNativeDriver: true,
+        easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
+      }).start(() => {
+        // onAnimationComplete && onAnimationComplete();
+      });
+    }
+  }, [isFaceUp, rotateAnimation, onAnimationComplete]);
 
   if (pairFound) {
     return <View style={styles.card}></View>;
@@ -76,6 +86,8 @@ export default function Card({
     </Pressable>
   );
 }
+
+export default memo(Card);
 
 const styles = StyleSheet.create({
   card: {

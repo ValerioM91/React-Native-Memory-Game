@@ -23,13 +23,13 @@ export default function Game({ navigation }: Props) {
 
   const [selectedCards, setSelectedCards] = useState<TCard[]>([]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTime((previous) => previous + 6);
-    }, 60);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setTime((previous) => previous + 6);
+  //   }, 60);
 
-    return () => clearInterval(timer);
-  }, []);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   const selectCardHandler = useCallback(
     (card: TCard) => {
@@ -47,26 +47,46 @@ export default function Game({ navigation }: Props) {
     [selectedCards]
   );
 
-  const checkPairHandler = useCallback(() => {
+  const onAnimationComplete = useCallback(() => {
+    console.log("running");
     if (selectedCards.length !== 2) return;
 
     setMovesQuantity((current) => current + 1);
+
     const equalSelectedCards = selectedCards[0].svg === selectedCards[1].svg;
-    setTimeout(() => {
-      if (equalSelectedCards) {
-        setShuffledCards((current) => {
-          let removedEqualCards = [...current];
-          removedEqualCards = removedEqualCards.map((card) =>
-            card.svg === selectedCards[0].svg
-              ? { ...card, pairFound: true }
-              : card
-          );
-          return removedEqualCards;
-        });
-      }
-      setSelectedCards([]);
-    }, 500);
+    if (equalSelectedCards) {
+      setShuffledCards((current) => {
+        let removedEqualCards = [...current];
+        removedEqualCards = removedEqualCards.map((card) =>
+          card.svg === selectedCards[0].svg
+            ? { ...card, pairFound: true }
+            : card
+        );
+        return removedEqualCards;
+      });
+    }
+    setSelectedCards([]);
   }, [selectedCards]);
+
+  // const checkPairHandler = useCallback(() => {
+  //   if (selectedCards.length !== 2) return;
+
+  //   setMovesQuantity((current) => current + 1);
+  //   // setTimeout(() => {
+  //   //   // if (equalSelectedCards) {
+  //   //   setShuffledCards((current) => {
+  //   //     let removedEqualCards = [...current];
+  //   //     removedEqualCards = removedEqualCards.map((card) =>
+  //   //       card.svg === selectedCards[0].svg
+  //   //         ? { ...card, pairFound: true }
+  //   //         : card
+  //   //     );
+  //   //     return removedEqualCards;
+  //   //   });
+  //   //   // }
+  //   //   setSelectedCards([]);
+  //   // }, 500);
+  // }, [selectedCards]);
 
   const isGameEndedHandler = useCallback(() => {
     if (shuffledCards.every((card) => card.pairFound)) {
@@ -78,31 +98,37 @@ export default function Game({ navigation }: Props) {
     }
   }, [movesQuantity, navigation, shuffledCards, time, updateRecords]);
 
-  useEffect(() => {
-    checkPairHandler();
-  }, [checkPairHandler]);
+  // useEffect(() => {
+  //   checkPairHandler();
+  // }, [checkPairHandler]);
 
-  useEffect(() => {
-    isGameEndedHandler();
-  }, [isGameEndedHandler]);
+  // useEffect(() => {
+  //   isGameEndedHandler();
+  // }, [isGameEndedHandler]);
 
   return (
     <View style={styles.screen}>
       <Timer time={time} />
       {initialCardRows.map((row, rowIndex) => (
         <View style={styles.row} key={rowIndex}>
-          {row.map((item, itemIndex) => (
-            <Item
-              pairFound={shuffledCards[rowIndex * 4 + itemIndex].pairFound}
-              key={`${item.svg}-${item.pairNumber}`}
-              card={item}
-              onPress={() => selectCardHandler(item)}
-              isFaceUp={selectedCards.some(
-                (card) =>
-                  card.svg === item.svg && card.pairNumber === item.pairNumber
-              )}
-            />
-          ))}
+          {row.map((item, itemIndex) => {
+            const Svg = Svgs[item.svg];
+
+            return (
+              <Card
+                key={`${item.svg}-${item.pairNumber}`}
+                onPress={() => selectCardHandler(item)}
+                isFaceUp={selectedCards.some(
+                  (card) =>
+                    card.svg === item.svg && card.pairNumber === item.pairNumber
+                )}
+                pairFound={shuffledCards[rowIndex * 4 + itemIndex].pairFound}
+                onAnimationComplete={onAnimationComplete}
+              >
+                <Svg svgProps={{ width: "100%" }} color={item.color} />
+              </Card>
+            );
+          })}
         </View>
       ))}
       <Text style={styles.movesText}>Total Moves: {movesQuantity}</Text>
@@ -115,16 +141,23 @@ const Item = ({
   onPress,
   isFaceUp,
   pairFound,
+  onAnimationComplete,
 }: {
   card: TCard;
   onPress: (event: GestureResponderEvent) => void;
   isFaceUp: boolean;
   pairFound: boolean;
+  onAnimationComplete: () => void;
 }) => {
   const Svg = Svgs[card.svg];
 
   return (
-    <Card onPress={onPress} isFaceUp={isFaceUp} pairFound={pairFound}>
+    <Card
+      onPress={onPress}
+      isFaceUp={isFaceUp}
+      pairFound={pairFound}
+      onAnimationComplete={onAnimationComplete}
+    >
       <Svg svgProps={{ width: "100%" }} color={card.color} />
     </Card>
   );
