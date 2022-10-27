@@ -7,17 +7,19 @@ interface Props {
   svgProps?: SvgProps;
 }
 
-const SvgTemplate = ({ svgProps, color, path }: Props) => (
-  <Svg
-    viewBox="0 0 512 512"
-    style={{
-      height: 48,
-      width: 48,
-    }}
-    {...svgProps}
-  >
-    <Path d={path} fill={colors.cardsColors[color]} />
-  </Svg>
-);
+const SvgTemplate = ({ svgProps, color, path }: Props) => {
+  return (
+    <Svg
+      viewBox="0 0 512 512"
+      style={{
+        height: 48,
+        width: 48,
+      }}
+      {...svgProps}
+    >
+      <Path d={path} fill={colors.cardsColors[color]} />
+    </Svg>
+  );
+};
 
 export default SvgTemplate;

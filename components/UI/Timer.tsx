@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../../constants/colors";
 import { getFormattedTime } from "../../utils/getFormattedTime";
@@ -8,6 +8,15 @@ interface Props {
 }
 
 export default function Timer({ time }: Props) {
+  // const [time, setTime] = useState(0)
+
+  // useEffect(() => {
+  //   const timerInterval = setInterval(() => {
+  //     setTime(current=> current + 6)
+  //   }, 60);
+
+  //   return () => clearInterval(timerInterval);
+  // }, []);
   const { minutes, seconds, cents } = getFormattedTime(time);
 
   return (

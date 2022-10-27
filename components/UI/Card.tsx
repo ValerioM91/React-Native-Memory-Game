@@ -9,25 +9,33 @@ import {
   View,
 } from "react-native";
 import { colors } from "../../constants/colors";
+import { TCard } from "../../types";
+import * as Svgs from "../SVGS";
 
 interface Props {
-  children: React.ReactNode;
-  onPress: (event: GestureResponderEvent) => void;
+  // children: React.ReactNode;
+  onPress: (card: TCard) => void;
   isFaceUp?: boolean;
   pairFound?: boolean;
   onAnimationComplete?: () => void;
+  svg: keyof typeof Svgs;
+  color: keyof typeof colors.cardsColors;
 }
 
 function Card({
-  children,
   onPress,
   isFaceUp,
   pairFound,
   onAnimationComplete,
+  svg,
+  color,
+  item,
 }: Props) {
   const rotateAnimation = useRef(new Animated.Value(0)).current;
 
-  console.log("card rendering");
+  const Svg = Svgs[svg];
+
+  console.log("card rendering", onPress, isFaceUp, pairFound);
 
   const RotateUpData = rotateAnimation.interpolate({
     inputRange: [0, 1],
@@ -40,16 +48,14 @@ function Card({
   });
 
   useEffect(() => {
-    if (isFaceUp) {
-      Animated.timing(rotateAnimation, {
-        toValue: isFaceUp ? 1 : 0,
-        duration: 500,
-        useNativeDriver: true,
-        easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
-      }).start(() => {
-        // onAnimationComplete && onAnimationComplete();
-      });
-    }
+    Animated.timing(rotateAnimation, {
+      toValue: isFaceUp ? 1 : 0,
+      duration: 500,
+      useNativeDriver: true,
+      easing: Easing.bezier(0.17, 0.67, 0.17, 0.92),
+    }).start(() => {
+      // onAnimationComplete && onAnimationComplete();
+    });
   }, [isFaceUp, rotateAnimation, onAnimationComplete]);
 
   if (pairFound) {
@@ -57,7 +63,7 @@ function Card({
   }
 
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={() => onPress(item)} style={styles.card}>
       <Animated.View
         style={[
           styles.side,
@@ -81,7 +87,7 @@ function Card({
           },
         ]}
       >
-        {children}
+        <Svg svgProps={{ width: "100%" }} color={color} />
       </Animated.View>
     </Pressable>
   );
