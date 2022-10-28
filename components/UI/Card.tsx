@@ -1,29 +1,20 @@
-import { useRef } from "react";
-import {
-  StyleSheet,
-  Pressable,
-  GestureResponderEvent,
-  Image,
-  Animated,
-  Easing,
-  View,
-} from "react-native";
+import { memo, useRef } from "react";
+import { StyleSheet, Pressable, Image, Animated, Easing, View } from "react-native";
 import { colors } from "../../constants/colors";
+import { TCard } from "../../types";
+import * as Svgs from "../SVGS";
 
 interface Props {
-  children: React.ReactNode;
-  onPress: (event: GestureResponderEvent) => void;
+  onPress: (card: TCard) => void;
   isFaceUp?: boolean;
   pairFound?: boolean;
+  item: TCard;
 }
 
-export default function Card({
-  children,
-  onPress,
-  isFaceUp,
-  pairFound,
-}: Props) {
+function Card({ onPress, isFaceUp, pairFound, item }: Props) {
   const rotateAnimation = useRef(new Animated.Value(0)).current;
+
+  console.log("rendering card");
 
   const RotateUpData = rotateAnimation.interpolate({
     inputRange: [0, 1],
@@ -46,8 +37,10 @@ export default function Card({
     return <View style={styles.card}></View>;
   }
 
+  const Svg = Svgs[item.svg];
+
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={() => onPress(item)} style={styles.card}>
       <Animated.View
         style={[
           styles.side,
@@ -57,10 +50,7 @@ export default function Card({
           },
         ]}
       >
-        <Image
-          source={require("../../assets/card.jpg")}
-          style={styles.background}
-        />
+        <Image source={require("../../assets/card.jpg")} style={styles.background} />
       </Animated.View>
       <Animated.View
         style={[
@@ -71,11 +61,13 @@ export default function Card({
           },
         ]}
       >
-        {children}
+        <Svg svgProps={{ width: "100%" }} color={item.color} />
       </Animated.View>
     </Pressable>
   );
 }
+
+export default memo(Card);
 
 const styles = StyleSheet.create({
   card: {

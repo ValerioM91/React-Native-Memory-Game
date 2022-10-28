@@ -1,26 +1,24 @@
-import { StyleSheet, View, GestureResponderEvent, Text } from "react-native";
-import * as Svgs from "../components/SVGS";
-import Card from "../components/UI/Card";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getShuffledCards } from "../utils/getShuffledCards";
-import { TCard } from "../types";
+import { StyleSheet, View, Text } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "../App";
-import useRecordContext from "../store/context";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { colors } from "../constants/colors";
+import { getShuffledCards } from "../utils/getShuffledCards";
+import { TCard } from "../types";
+import useRecordContext from "../store/context";
+import Card from "../components/UI/Card";
 import Timer from "../components/UI/Timer";
 
 type Props = NativeStackScreenProps<RootStackNavigator, "Game">;
 
 export default function Game({ navigation }: Props) {
-  const initialCardRows = useRef(getShuffledCards()).current;
+  const initialCardRows = useMemo(() => getShuffledCards(), []);
+
   const { updateRecords } = useRecordContext();
-
-  const [shuffledCards, setShuffledCards] = useState(initialCardRows.flat());
-
   const [movesQuantity, setMovesQuantity] = useState(0);
   const [time, setTime] = useState(0);
 
+  const [shuffledCards, setShuffledCards] = useState(initialCardRows.flat());
   const [selectedCards, setSelectedCards] = useState<TCard[]>([]);
 
   useEffect(() => {
@@ -35,10 +33,7 @@ export default function Game({ navigation }: Props) {
     (card: TCard) => {
       if (selectedCards.length === 2) return;
       setSelectedCards((current) => {
-        if (
-          current[0]?.svg === card.svg &&
-          current[0]?.pairNumber === card.pairNumber
-        ) {
+        if (current[0]?.svg === card.svg && current[0]?.pairNumber === card.pairNumber) {
           return [...current];
         }
         return [...current, card];
@@ -57,9 +52,7 @@ export default function Game({ navigation }: Props) {
         setShuffledCards((current) => {
           let removedEqualCards = [...current];
           removedEqualCards = removedEqualCards.map((card) =>
-            card.svg === selectedCards[0].svg
-              ? { ...card, pairFound: true }
-              : card
+            card.svg === selectedCards[0].svg ? { ...card, pairFound: true } : card
           );
           return removedEqualCards;
         });
@@ -91,44 +84,28 @@ export default function Game({ navigation }: Props) {
       <Timer time={time} />
       {initialCardRows.map((row, rowIndex) => (
         <View style={styles.row} key={rowIndex}>
-          {row.map((item, itemIndex) => (
-            <Item
-              pairFound={shuffledCards[rowIndex * 4 + itemIndex].pairFound}
-              key={`${item.svg}-${item.pairNumber}`}
-              card={item}
-              onPress={() => selectCardHandler(item)}
-              isFaceUp={selectedCards.some(
-                (card) =>
-                  card.svg === item.svg && card.pairNumber === item.pairNumber
-              )}
-            />
-          ))}
+          {row.map((item, itemIndex) => {
+            const isFaceUp = selectedCards.some(
+              (card) => card.svg === item.svg && card.pairNumber === item.pairNumber
+            );
+            const pairFound = shuffledCards[rowIndex * 4 + itemIndex].pairFound;
+
+            return (
+              <Card
+                key={`${item.svg}-${item.pairNumber}`}
+                item={item}
+                onPress={selectCardHandler}
+                isFaceUp={isFaceUp}
+                pairFound={pairFound}
+              />
+            );
+          })}
         </View>
       ))}
       <Text style={styles.movesText}>Total Moves: {movesQuantity}</Text>
     </View>
   );
 }
-
-const Item = ({
-  card,
-  onPress,
-  isFaceUp,
-  pairFound,
-}: {
-  card: TCard;
-  onPress: (event: GestureResponderEvent) => void;
-  isFaceUp: boolean;
-  pairFound: boolean;
-}) => {
-  const Svg = Svgs[card.svg];
-
-  return (
-    <Card onPress={onPress} isFaceUp={isFaceUp} pairFound={pairFound}>
-      <Svg svgProps={{ width: "100%" }} color={card.color} />
-    </Card>
-  );
-};
 
 const styles = StyleSheet.create({
   screen: {
